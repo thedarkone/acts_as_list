@@ -68,8 +68,8 @@ module ActiveRecord
 
             #{scope_condition_method}
 
-            before_destroy :decrement_positions_on_lower_items
-            before_create  :add_to_list_bottom
+            after_destroy :decrement_positions_on_lower_items
+            before_create :add_to_list_bottom
           EOV
         end
       end
