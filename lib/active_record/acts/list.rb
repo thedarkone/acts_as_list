@@ -196,7 +196,7 @@ module ActiveRecord
           def bottom_item(except = nil)
             conditions = scope_condition
             conditions = "#{conditions} AND #{self.class.primary_key} != #{except.id}" if except
-            acts_as_list_class.where(conditions).order("#{position_column} DESC").first
+            acts_as_list_class.where(conditions).reorder("#{position_column} DESC").first
           end
 
           # Forces item to assume the bottom position in the list.
