@@ -71,6 +71,18 @@ module ActiveRecord
             after_destroy :decrement_positions_on_lower_items
             before_create :add_to_list_bottom
           EOV
+
+          # This is necessary when multiple records are being destroyed in `position`-ascending order. A series of SQL UPDATE's issued
+          # by `decrement_positions_on_lower_items` result in corrupted (duplicate) position values for records below the DELETEd
+          # rows (the SQL modifies the `position` value of the records being destroyed without acts_as_list knowing about it).
+          #
+          # Example: 2 records (record A with position = 2 and record B with position = 3) are destroyed and the following SQL is executed:
+          #   DELETE record_A;
+          #   UPDATE table_name SET position = (position - 1) WHERE position > 2;
+          #   -- at this point the record B still thinks it has position = 3 (when in fact it has been decremented to 2)
+          #   DELETE record_B;
+          #   UPDATE table_name SET position = (position - 1) WHERE position > 3;
+          before_destroy :reload
         end
       end
 
